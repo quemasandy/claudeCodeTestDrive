@@ -3,6 +3,7 @@ import { Group } from 'three'
 import { BoardLevel } from './BoardLevel'
 import { Pieces3D } from './Pieces3D'
 import { ProjectedBoard } from './ProjectedBoard'
+import { LevelGlassGrids } from './LevelGlassGrids'
 
 export function Board3D() {
   const boardRef = useRef<Group>(null)
@@ -18,6 +19,9 @@ export function Board3D() {
           showVisual={false}
         />
       ))}
+
+      {/* Layered ethereal glass grids for each level */}
+      <LevelGlassGrids />
 
       {/* Projected board overlays (shadows/lights) */}
       <ProjectedBoard />

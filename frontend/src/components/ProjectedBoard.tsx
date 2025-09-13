@@ -8,8 +8,8 @@ import { getCaptureMoves } from '../utils/gameLogic'
 const levelColors = ['#cbd5e1', '#bfe3ff', '#a5d8ff', '#7dd3fc', '#60a5fa', '#38bdf8', '#22d3ee', '#06b6d4']
 const levelOpacity = [0.22, 0.28, 0.34, 0.40, 0.46, 0.52, 0.58, 0.64]
 
-// Plano z para proyecciones en el sistema local del tablero (Board3D agrupa en [-7,-7,-7])
-const GROUND_Z = 0.02
+// Altura base sobre cada plano para evitar z-fighting con LevelGlassGrids
+const LAYER_OFFSET = 0.02
 const SIZE = 1.8
 
 export function ProjectedBoard() {
@@ -36,7 +36,7 @@ export function ProjectedBoard() {
         />
       ))}
 
-      {/* Movimientos válidos del seleccionado (luz) */}
+      {/* Movimientos válidos del seleccionado (luz) en sus niveles reales */}
       {selectedPiece && validMoves.map((m, idx) => {
         const isCap = captureSet.has(`${m.x}-${m.y}-${m.z}`)
         return (
@@ -44,7 +44,7 @@ export function ProjectedBoard() {
             key={`vm-${idx}`}
             x={m.x}
             y={m.y}
-            z={0}
+            z={m.z}
             color={isCap ? '#ef4444' : '#60a5fa'}
             opacity={isCap ? 0.6 : 0.45}
             glow
@@ -60,7 +60,7 @@ export function ProjectedBoard() {
 
 function ProjectedSquare({ x, y, z, color, opacity, glow = false }: { x: number, y: number, z: number, color: string, opacity: number, glow?: boolean }) {
   return (
-    <group position={[x * 2, y * 2, GROUND_Z]}>
+    <group position={[x * 2, y * 2, z * 2 + LAYER_OFFSET]}>
       <mesh raycast={() => null}>
         <planeGeometry args={[SIZE, SIZE]} />
         <meshBasicMaterial color={color} transparent opacity={opacity} />
@@ -92,7 +92,7 @@ function ProjectedHover() {
       const y = Math.round(p.y / 2)
       if (x >= 0 && x < 8 && y >= 0 && y < 8) {
         outline.visible = true
-        outline.position.set(x * 2, y * 2, GROUND_Z + 0.005)
+        outline.position.set(x * 2, y * 2, LAYER_OFFSET + 0.005)
         return
       }
     }
@@ -111,4 +111,3 @@ function ProjectedHover() {
     </group>
   )
 }
-
