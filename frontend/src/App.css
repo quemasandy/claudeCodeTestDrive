@@ -18,6 +18,58 @@
   position: relative;
 }
 
+.rotation-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  z-index: 100;
+}
+
+.rotation-horizontal {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.rotation-btn {
+  width: 50px;
+  height: 50px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  user-select: none;
+}
+
+.rotation-btn:hover {
+  background: rgba(239, 68, 68, 0.8);
+  border-color: #ef4444;
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+}
+
+.rotation-btn:active {
+  transform: scale(0.95);
+  background: rgba(239, 68, 68, 1);
+}
+
+.rotation-up,
+.rotation-down {
+  margin: 0 auto;
+}
+
 .game-ui {
   flex: 1;
   min-width: 300px;

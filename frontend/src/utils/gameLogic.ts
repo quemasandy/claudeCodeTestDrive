@@ -14,46 +14,43 @@ export function isValidSquare(x: number, y: number, z: number): boolean {
 export function initializePieces(): Piece[] {
   const pieces: Piece[] = []
 
-  // Let's create a simpler, more spaced out initial setup for testing
-  // Player 1 (Red) pieces
-  const player1Positions = [
-    { x: 1, y: 0, z: 0 }, // Bottom level
-    { x: 0, y: 1, z: 1 }, // Second level
-  ]
-
-  // Player 2 (Black) pieces
-  const player2Positions = [
-    { x: 2, y: 3, z: 3 }, // Top level
-    { x: 3, y: 2, z: 2 }, // Third level
-  ]
-
-  // Add player 1 pieces
-  player1Positions.forEach((pos, index) => {
-    if (isValidSquare(pos.x, pos.y, pos.z)) {
-      pieces.push({
-        id: `p1-${index}`,
-        x: pos.x,
-        y: pos.y,
-        z: pos.z,
-        player: 1,
-        isKing: false
-      })
+  // Player 1 (Red) - starts at bottom levels (z=0,1,2)
+  // Level 0: Fill first 3 rows
+  for (let z = 0; z < 3; z++) {
+    for (let y = 0; y < 3; y++) {
+      for (let x = 0; x < 8; x++) {
+        if (isValidSquare(x, y, z)) {
+          pieces.push({
+            id: `p1-${x}-${y}-${z}`,
+            x,
+            y,
+            z,
+            player: 1,
+            isKing: false
+          })
+        }
+      }
     }
-  })
+  }
 
-  // Add player 2 pieces
-  player2Positions.forEach((pos, index) => {
-    if (isValidSquare(pos.x, pos.y, pos.z)) {
-      pieces.push({
-        id: `p2-${index}`,
-        x: pos.x,
-        y: pos.y,
-        z: pos.z,
-        player: 2,
-        isKing: false
-      })
+  // Player 2 (Black) - starts at top levels (z=5,6,7)
+  // Level 5,6,7: Fill last 3 rows
+  for (let z = 5; z < 8; z++) {
+    for (let y = 5; y < 8; y++) {
+      for (let x = 0; x < 8; x++) {
+        if (isValidSquare(x, y, z)) {
+          pieces.push({
+            id: `p2-${x}-${y}-${z}`,
+            x,
+            y,
+            z,
+            player: 2,
+            isKing: false
+          })
+        }
+      }
     }
-  })
+  }
 
   return pieces
 }
@@ -100,7 +97,7 @@ export function getRegularMoves(piece: Piece, allPieces: Piece[]): Position[] {
     const newZ = z + dz
 
     // Check bounds
-    if (newX < 0 || newX >= 4 || newY < 0 || newY >= 4 || newZ < 0 || newZ >= 4) {
+    if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8 || newZ < 0 || newZ >= 8) {
       continue
     }
 
@@ -141,7 +138,7 @@ export function getCaptureMoves(piece: Piece, allPieces: Piece[]): Position[] {
     const enemyZ = z + dz
 
     // Check if there's an enemy piece adjacent
-    if (enemyX < 0 || enemyX >= 4 || enemyY < 0 || enemyY >= 4 || enemyZ < 0 || enemyZ >= 4) {
+    if (enemyX < 0 || enemyX >= 8 || enemyY < 0 || enemyY >= 8 || enemyZ < 0 || enemyZ >= 8) {
       continue
     }
 
@@ -183,8 +180,8 @@ export function getCaptureLandingPositions(
   const traditionalY = enemyY + dy
   const traditionalZ = enemyZ + dz
 
-  if (traditionalX >= 0 && traditionalX < 4 && traditionalY >= 0 && traditionalY < 4 &&
-      traditionalZ >= 0 && traditionalZ < 4 && isValidSquare(traditionalX, traditionalY, traditionalZ)) {
+  if (traditionalX >= 0 && traditionalX < 8 && traditionalY >= 0 && traditionalY < 8 &&
+      traditionalZ >= 0 && traditionalZ < 8 && isValidSquare(traditionalX, traditionalY, traditionalZ)) {
     const pieceAtTraditional = allPieces.find(p => p.x === traditionalX && p.y === traditionalY && p.z === traditionalZ)
     if (!pieceAtTraditional) {
       positions.push({ x: traditionalX, y: traditionalY, z: traditionalZ })
@@ -192,7 +189,7 @@ export function getCaptureLandingPositions(
   }
 
   // Option 2: 3D Innovation - Land on same XY but different level
-  for (let newZ = 0; newZ < 4; newZ++) {
+  for (let newZ = 0; newZ < 8; newZ++) {
     if (newZ === enemyZ) continue // Skip the enemy's level
 
     if (isValidSquare(enemyX, enemyY, newZ)) {
@@ -239,10 +236,10 @@ export function shouldCrown(piece: Piece): boolean {
   if (piece.isKing) return false
 
   if (piece.player === 1) {
-    // Player 1 crowns at y=3 or z=3
-    return piece.y === 3 || piece.z === 3
+    // Player 1 crowns at y=7 or z=7 (far end of board)
+    return piece.y === 7 || piece.z === 7
   } else {
-    // Player 2 crowns at y=0 or z=0
+    // Player 2 crowns at y=0 or z=0 (opposite end)
     return piece.y === 0 || piece.z === 0
   }
 }

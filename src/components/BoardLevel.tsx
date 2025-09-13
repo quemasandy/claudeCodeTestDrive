@@ -9,8 +9,8 @@ interface BoardLevelProps {
 export function BoardLevel({ level, opacity }: BoardLevelProps) {
   const squares = []
 
-  for (let x = 0; x < 8; x++) {
-    for (let y = 0; y < 8; y++) {
+  for (let x = 0; x < 4; x++) {
+    for (let y = 0; y < 4; y++) {
       if (isValidSquare(x, y, level)) {
         squares.push(
           <Square3D
