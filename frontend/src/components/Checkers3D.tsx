@@ -3,6 +3,7 @@ import { OrbitControls } from '@react-three/drei'
 import { Board3D } from './Board3D'
 import { GameUI } from './GameUI'
 import { RotationControls } from './RotationControls'
+import { DynamicPieceSelector } from './DynamicPieceSelector'
 import { useGameStore } from '../store/gameStore'
 import { useRef, useCallback, useEffect, forwardRef, useImperativeHandle } from 'react'
 
@@ -39,7 +40,7 @@ const CameraController = forwardRef<CameraControllerRef>((props, ref) => {
     const z = distance * Math.cos(targetRotation.current.x) * Math.sin(targetRotation.current.y)
 
     camera.position.set(x, y, z)
-    camera.lookAt(0, 0, 0)
+    camera.lookAt(-7, -7, -7)
   }, [camera])
 
   useImperativeHandle(ref, () => ({
@@ -59,58 +60,63 @@ export function Checkers3D() {
   return (
     <div className="checkers-3d">
       <div className="game-canvas">
-        <Canvas camera={{ position: [25, 15, 25], fov: 60 }}>
-          {/* Iluminación mejorada para materiales realistas */}
-          <ambientLight intensity={0.4} />
+        <div className="canvas-container">
+          <Canvas camera={{ position: [8, 8, 8], fov: 75 }}>
+            {/* Iluminación mejorada para materiales realistas */}
+            <ambientLight intensity={0.4} />
 
-          {/* Luz principal direccional */}
-          <directionalLight
-            position={[20, 20, 10]}
-            intensity={1.2}
-            castShadow
-            shadow-mapSize-width={2048}
-            shadow-mapSize-height={2048}
-          />
+            {/* Luz principal direccional */}
+            <directionalLight
+              position={[20, 20, 10]}
+              intensity={1.2}
+              castShadow
+              shadow-mapSize-width={2048}
+              shadow-mapSize-height={2048}
+            />
 
-          {/* Luz de relleno para suavizar sombras */}
-          <directionalLight
-            position={[-10, 15, -10]}
-            intensity={0.6}
-            color="#e0f2fe"
-          />
+            {/* Luz de relleno para suavizar sombras */}
+            <directionalLight
+              position={[-10, 15, -10]}
+              intensity={0.6}
+              color="#e0f2fe"
+            />
 
-          {/* Luz puntual superior para crear brillos */}
-          <pointLight
-            position={[0, 15, 0]}
-            intensity={0.8}
-            color="#ffffff"
-          />
+            {/* Luz puntual superior para crear brillos */}
+            <pointLight
+              position={[0, 15, 0]}
+              intensity={0.8}
+              color="#ffffff"
+            />
 
-          {/* Luces puntuales para crear reflejos en las esferas metálicas */}
-          <pointLight
-            position={[10, 5, 10]}
-            intensity={0.5}
-            color="#60a5fa"
-          />
+            {/* Luces puntuales para crear reflejos en las esferas metálicas */}
+            <pointLight
+              position={[10, 5, 10]}
+              intensity={0.5}
+              color="#60a5fa"
+            />
 
-          <pointLight
-            position={[-10, 5, -10]}
-            intensity={0.5}
-            color="#f87171"
-          />
+            <pointLight
+              position={[-10, 5, -10]}
+              intensity={0.5}
+              color="#f87171"
+            />
 
-          <Board3D />
-          <OrbitControls
-            enablePan={true}
-            enableZoom={true}
-            enableRotate={true}
-            minDistance={15}
-            maxDistance={50}
-            target={[0, 0, 0]}
-          />
-          <CameraController ref={cameraControllerRef} />
-        </Canvas>
-        <RotationControls onRotate={handleRotation} />
+            <Board3D />
+            <OrbitControls
+              enablePan={true}
+              enableZoom={true}
+              enableRotate={true}
+              minDistance={10}
+              maxDistance={40}
+              target={[-7, -7, -7]}
+            />
+            <CameraController ref={cameraControllerRef} />
+          </Canvas>
+          <RotationControls onRotate={handleRotation} />
+
+          {/* Selector dinámico de fichas posicionado absolutamente en el bottom */}
+          <DynamicPieceSelector />
+        </div>
       </div>
       <GameUI />
     </div>
