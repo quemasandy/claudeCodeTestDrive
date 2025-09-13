@@ -4,9 +4,10 @@ import { isValidSquare } from '../utils/gameLogic'
 interface BoardLevelProps {
   level: number
   opacity: number
+  showVisual?: boolean
 }
 
-export function BoardLevel({ level, opacity }: BoardLevelProps) {
+export function BoardLevel({ level, opacity, showVisual = true }: BoardLevelProps) {
   const squares = []
 
   // Map visual opacity by level:
@@ -22,6 +23,7 @@ export function BoardLevel({ level, opacity }: BoardLevelProps) {
             key={`${x}-${y}-${level}`}
             position={[x, y, level]}
             opacity={visualOpacity}
+            showVisual={showVisual}
           />
         )
       }

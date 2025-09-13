@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import { Group } from 'three'
 import { BoardLevel } from './BoardLevel'
 import { Pieces3D } from './Pieces3D'
-import { GhostCursor } from './GhostCursor'
+import { ProjectedBoard } from './ProjectedBoard'
 
 export function Board3D() {
   const boardRef = useRef<Group>(null)
@@ -15,14 +15,17 @@ export function Board3D() {
           key={level}
           level={level}
           opacity={level === 0 ? 1 : Math.max(0.1, 0.8 - (level * 0.1))}
+          showVisual={false}
         />
       ))}
+
+      {/* Projected board overlays (shadows/lights) */}
+      <ProjectedBoard />
 
       {/* Render all pieces */}
       <Pieces3D />
 
-      {/* Cursor fantasma para mejor feedback visual */}
-      <GhostCursor />
+      {/* Hover en suelo gestionado por ProjectedBoard */}
     </group>
   )
 }

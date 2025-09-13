@@ -7,9 +7,10 @@ import { getCaptureMoves } from '../utils/gameLogic'
 interface Square3DProps {
   position: [number, number, number]
   opacity: number
+  showVisual?: boolean // Projection mode disables visual cube; keeps hitbox only
 }
 
-export function Square3D({ position, opacity }: Square3DProps) {
+export function Square3D({ position, opacity, showVisual = true }: Square3DProps) {
   const meshRef = useRef<Mesh>(null)
   const [hovered, setHovered] = useState(false)
   const { selectSquare, selectedSquare, validMoves, selectedPiece, pieces } = useGameStore()
@@ -49,46 +50,45 @@ export function Square3D({ position, opacity }: Square3DProps) {
         <meshBasicMaterial transparent opacity={0} />
       </mesh>
 
-      {/* Casilla visual (efecto cristal) */}
-      <mesh
-        ref={meshRef}
-        position={[x * 2, y * 2, 0]}
-      >
-        <boxGeometry args={[1.8, 1.8, 0.2]} />
-        {/* Base satinada en nivel 0; niveles superiores semi‑translúcidos */}
-        {z === 0 ? (
-          <meshPhysicalMaterial
-            color={getBaseColor()}
-            transparent
-            opacity={0.98}
-            roughness={0.95}
-            metalness={0.05}
-            clearcoat={0.05}
-          />
-        ) : (
-          <meshPhysicalMaterial
-            color={getBaseColor()}
-            transparent
-            opacity={opacity}
-            roughness={0.25}
-            metalness={0.05}
-            transmission={0.35}
-            thickness={0.5}
-            ior={1.12}
-          />
-        )}
+      {showVisual && (
+        <mesh ref={meshRef} position={[x * 2, y * 2, 0]}>
+          <boxGeometry args={[1.8, 1.8, 0.2]} />
+          {/* Base satinada en nivel 0; niveles superiores semi‑translúcidos */}
+          {z === 0 ? (
+            <meshPhysicalMaterial
+              color={getBaseColor()}
+              transparent
+              opacity={0.98}
+              roughness={0.95}
+              metalness={0.05}
+              clearcoat={0.05}
+            />
+          ) : (
+            <meshPhysicalMaterial
+              color={getBaseColor()}
+              transparent
+              opacity={opacity}
+              roughness={0.25}
+              metalness={0.05}
+              transmission={0.35}
+              thickness={0.5}
+              ior={1.12}
+            />
+          )}
 
-        {/* Borde luminoso sutil */}
-        <Edges
-          scale={1.001}
-          threshold={12}
-        >
-          <lineBasicMaterial color={getEdgeColor()} transparent opacity={isValidMove || isCapture || hovered ? 0.9 : 0.25} />
-        </Edges>
-      </mesh>
+          {/* Borde luminoso sutil */}
+          <Edges scale={1.001} threshold={12}>
+            <lineBasicMaterial
+              color={getEdgeColor()}
+              transparent
+              opacity={isValidMove || isCapture || hovered ? 0.9 : 0.25}
+            />
+          </Edges>
+        </mesh>
+      )}
 
       {/* Borde brillante para casillas de movimiento válido */}
-      {isValidMove && (
+      {showVisual && isValidMove && (
         <mesh position={[x * 2, y * 2, 0.12]}>
           <torusGeometry args={[1.1, 0.04, 8, 16]} />
           <meshBasicMaterial
@@ -100,7 +100,7 @@ export function Square3D({ position, opacity }: Square3DProps) {
       )}
 
       {/* Efecto adicional para casillas de captura */}
-      {isCapture && (
+      {showVisual && isCapture && (
         <mesh position={[x * 2, y * 2, 0.15]} rotation={[0, 0, Math.PI / 4]}>
           <torusGeometry args={[0.8, 0.03, 6, 12]} />
           <meshBasicMaterial
