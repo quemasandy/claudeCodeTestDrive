@@ -9,6 +9,9 @@ import { useGameStore } from '../store/gameStore'
 import { useRef, useCallback, useEffect } from 'react'
 // Controlaremos la cámara usando OrbitControls de forma imperativa para permitir vueltas completas
 
+// Posición inicial de la cámara compartida entre Canvas y reset de vista
+const INITIAL_CAMERA_POSITION: [number, number, number] = [25, 0, -4]
+
 export function Checkers3D() {
   const controlsRef = useRef<any>(null)
 
@@ -49,7 +52,7 @@ export function Checkers3D() {
     const controls = controlsRef.current
     if (!controls) return
     // Cámara mirando desde +X hacia el centro, con Z como "arriba"
-    controls.object.position.set(20, 0, 14)
+    controls.object.position.set(...INITIAL_CAMERA_POSITION)
     controls.target.set(0, 0, 0)
     controls.object.up.set(0, 0, 1)
     controls.update()
@@ -65,7 +68,7 @@ export function Checkers3D() {
       <div className="game-canvas">
         <div className="canvas-container">
           <Canvas
-            camera={{ position: [20, 0, 14], fov: 70 }}
+            camera={{ position: INITIAL_CAMERA_POSITION, fov: 70 }}
             onCreated={({ camera }) => {
               // Usar Z como eje "arriba" para que el tablero se perciba con el suelo en Z=0
               camera.up.set(0, 0, 1)
