@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { Mesh } from 'three'
+import { Edges } from '@react-three/drei'
 import { useGameStore } from '../store/gameStore'
 import { getCaptureMoves } from '../utils/gameLogic'
 
@@ -26,12 +27,12 @@ export function Square3D({ position, opacity }: Square3DProps) {
     selectSquare(x, y, z)
   }
 
-  const getSquareColor = () => {
-    if (isSelected) return '#4ade80' // green for selected square
-    if (isCapture) return '#dc2626' // dark red for captures
-    if (isValidMove) return '#3b82f6' // blue for regular moves
-    if (hovered) return '#64748b' // gray for hover
-    return '#1e293b' // dark for normal squares
+  // Palette: base soft, glassy levels above with pastel highlights
+  const getBaseColor = () => (z === 0 ? '#eef2f7' : '#e6f1fa')
+  const getEdgeColor = () => {
+    if (isCapture) return '#ef4444'
+    if (isValidMove) return '#60a5fa'
+    return '#93c5fd'
   }
 
   return (
@@ -48,17 +49,42 @@ export function Square3D({ position, opacity }: Square3DProps) {
         <meshBasicMaterial transparent opacity={0} />
       </mesh>
 
-      {/* Casilla visual */}
+      {/* Casilla visual (efecto cristal) */}
       <mesh
         ref={meshRef}
         position={[x * 2, y * 2, 0]}
       >
         <boxGeometry args={[1.8, 1.8, 0.2]} />
-        <meshStandardMaterial
-          color={getSquareColor()}
-          transparent={true}
-          opacity={opacity}
-        />
+        {/* Base satinada en nivel 0; niveles superiores semi‑translúcidos */}
+        {z === 0 ? (
+          <meshPhysicalMaterial
+            color={getBaseColor()}
+            transparent
+            opacity={0.98}
+            roughness={0.95}
+            metalness={0.05}
+            clearcoat={0.05}
+          />
+        ) : (
+          <meshPhysicalMaterial
+            color={getBaseColor()}
+            transparent
+            opacity={opacity}
+            roughness={0.25}
+            metalness={0.05}
+            transmission={0.35}
+            thickness={0.5}
+            ior={1.12}
+          />
+        )}
+
+        {/* Borde luminoso sutil */}
+        <Edges
+          scale={1.001}
+          threshold={12}
+        >
+          <lineBasicMaterial color={getEdgeColor()} transparent opacity={isValidMove || isCapture || hovered ? 0.9 : 0.25} />
+        </Edges>
       </mesh>
 
       {/* Borde brillante para casillas de movimiento válido */}
