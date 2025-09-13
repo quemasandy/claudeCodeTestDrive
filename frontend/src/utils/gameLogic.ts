@@ -18,40 +18,24 @@ export function isValidSquare(x: number, y: number, z: number): boolean {
 export function initializePieces(): Piece[] {
   const pieces: Piece[] = []
 
-  // Ambas salidas "tocando el suelo": z = 0
-  // Jugador 1 (Rojo): primeras 3 filas (y=0..2)
-  {
-    const z = 0
+  // Distribución en espejo por nivel (8x8 clásico en cada z), apilado en 3 niveles
+  for (let z = 0; z < BOARD_HEIGHT; z++) {
+    // Jugador 1 (Rojo): primeras 3 filas (y = 0..2) pero sin la pared central (y=2)
     for (let y = 0; y < 3; y++) {
-      for (let x = 0; x < 8; x++) {
+      if (y === 2) continue
+      for (let x = 0; x < BOARD_SIZE; x++) {
         if (isValidSquare(x, y, z)) {
-          pieces.push({
-            id: `p1-${x}-${y}-${z}`,
-            x,
-            y,
-            z,
-            player: 1,
-            isKing: false
-          })
+          pieces.push({ id: `p1-${x}-${y}-${z}`, x, y, z, player: 1, isKing: false })
         }
       }
     }
-  }
 
-  // Jugador 2 (Negro): últimas 3 filas (y=5..7)
-  {
-    const z = 0
-    for (let y = 5; y < 8; y++) {
-      for (let x = 0; x < 8; x++) {
+    // Jugador 2 (Negro): últimas 3 filas (y = 5..7) pero sin la pared central (y=5)
+    for (let y = BOARD_SIZE - 3; y < BOARD_SIZE; y++) {
+      if (y === 5) continue
+      for (let x = 0; x < BOARD_SIZE; x++) {
         if (isValidSquare(x, y, z)) {
-          pieces.push({
-            id: `p2-${x}-${y}-${z}`,
-            x,
-            y,
-            z,
-            player: 2,
-            isKing: false
-          })
+          pieces.push({ id: `p2-${x}-${y}-${z}`, x, y, z, player: 2, isKing: false })
         }
       }
     }
@@ -194,8 +178,8 @@ export function getCaptureLandingPositions(
   const traditionalY = enemyY + dy
   const traditionalZ = enemyZ + dz
 
-  if (traditionalX >= 0 && traditionalX < 8 && traditionalY >= 0 && traditionalY < 8 &&
-      traditionalZ >= 0 && traditionalZ < 8 && isValidSquare(traditionalX, traditionalY, traditionalZ)) {
+  if (traditionalX >= 0 && traditionalX < BOARD_SIZE && traditionalY >= 0 && traditionalY < BOARD_SIZE &&
+      traditionalZ >= 0 && traditionalZ < BOARD_HEIGHT && isValidSquare(traditionalX, traditionalY, traditionalZ)) {
     const pieceAtTraditional = allPieces.find(p => p.x === traditionalX && p.y === traditionalY && p.z === traditionalZ)
     if (!pieceAtTraditional) {
       positions.push({ x: traditionalX, y: traditionalY, z: traditionalZ })
