@@ -6,11 +6,16 @@
   "scripts": {
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
     "dev:frontend": "cd frontend && npm run dev",
-    "dev:backend": "cd backend && npm run dev",
+    "dev:backend": "cd backend && NO_UPDATE_NOTIFIER=1 npm run dev",
     "build": "npm run build:frontend && npm run build:backend",
     "build:frontend": "cd frontend && npm run build",
     "build:backend": "cd backend && npm run build",
-    "install:all": "npm install && cd frontend && npm install && cd backend && npm install"
+    "install:all": "npm install && npm --prefix frontend install && npm --prefix backend install",
+    "clean:root": "rm -rf node_modules package-lock.json",
+    "clean:frontend": "rm -rf frontend/node_modules frontend/package-lock.json",
+    "clean:backend": "rm -rf backend/node_modules backend/package-lock.json",
+    "clean:all": "npm run clean:root && npm run clean:frontend && npm run clean:backend",
+    "reinstall:all": "npm run clean:all && npm run install:all"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
