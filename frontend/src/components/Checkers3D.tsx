@@ -5,6 +5,7 @@ import { Board3D } from './Board3D'
 import { GameUI } from './GameUI'
 import { RotationControls } from './RotationControls'
 import { DynamicPieceSelector } from './DynamicPieceSelector'
+import { WhiteRoom } from './WhiteRoom'
 import { useGameStore } from '../store/gameStore'
 import { useRef, useCallback, useEffect } from 'react'
 // Controlaremos la cámara usando OrbitControls de forma imperativa para permitir vueltas completas
@@ -74,6 +75,12 @@ export function Checkers3D() {
               camera.up.set(0, 0, 1)
             }}
           >
+            {/* Fondo blanco muy suave + sala minimalista */}
+            <color attach="background" args={["#f7fafc"]} />
+            {/* Fog sutil para mejorar percepción de profundidad sin saturar */}
+            <fog attach="fog" args={["#f7fafc", 50, 120]} />
+
+            <WhiteRoom size={70} color="#ffffff" opacity={0.12} />
             {/* Iluminación mejorada para materiales realistas */}
             <ambientLight intensity={0.4} />
 
