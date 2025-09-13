@@ -7,6 +7,7 @@ interface GameStore extends GameState {
   selectSquare: (x: number, y: number, z: number) => void
   movePiece: (to: Position) => void
   resetGame: () => void
+  clearSelection: () => void
 }
 
 const initialState: GameState = {
@@ -128,6 +129,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
       ...initialState,
       pieces: initializePieces()
     })
+  },
+
+  clearSelection: () => {
+    set({ selectedPiece: null, selectedSquare: null, validMoves: [] })
   }
 }))
 

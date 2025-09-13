@@ -1,9 +1,9 @@
 import { useGameStore } from '../store/gameStore'
-import { getValidMoves } from '../utils/gameLogic'
+import { getValidMoves, getCaptureMoves } from '../utils/gameLogic'
 import type { Piece } from '../types/game'
 
 export function DynamicPieceSelector() {
-  const { pieces, selectedPiece, currentPlayer, mustCapture, selectPiece } = useGameStore()
+  const { pieces, selectedPiece, currentPlayer, mustCapture, selectPiece, validMoves, movePiece, clearSelection } = useGameStore()
 
   // Filtrar fichas del jugador actual
   const currentPlayerPieces = pieces.filter(piece => piece.player === currentPlayer)
@@ -44,6 +44,31 @@ export function DynamicPieceSelector() {
 
   const canMoveCount = piecesWithMoveInfo.filter(p => p.canMove).length
   const kingsCount = currentPlayerPieces.filter(p => p.isKing).length
+
+  // Agrupar movimientos válidos por nivel para el menú
+  const groupedMoves = (selectedPiece ? validMoves : []).reduce<Record<number, { x: number, y: number, z: number }[]>>((acc, m) => {
+    if (!acc[m.z]) acc[m.z] = []
+    acc[m.z].push(m)
+    return acc
+  }, {})
+
+  const captureSet = new Set(
+    selectedPiece ? getCaptureMoves(selectedPiece, pieces).map(m => `${m.x}-${m.y}-${m.z}`) : []
+  )
+
+  const handleMoveClick = (x: number, y: number, z: number) => {
+    movePiece({ x, y, z })
+  }
+
+  const getDirectionIcon = (x: number, y: number, z: number) => {
+    if (!selectedPiece) return ''
+    const dx = x - selectedPiece.x
+    const dy = y - selectedPiece.y
+    const dz = z - selectedPiece.z
+    const horiz = dx >= 1 && dy >= 1 ? '↗' : dx >= 1 && dy <= -1 ? '↘' : dx <= -1 && dy <= -1 ? '↙' : dx <= -1 && dy >= 1 ? '↖' : '•'
+    const vert = dz > 0 ? '↑' : dz < 0 ? '↓' : ''
+    return `${horiz}${vert}`
+  }
 
   return (
     <div className="dynamic-piece-selector">
@@ -110,6 +135,45 @@ export function DynamicPieceSelector() {
           </div>
         )}
       </div>
+
+      {/* Menú de movimientos para la pieza seleccionada */}
+      {selectedPiece && (
+        <div className="moves-menu">
+          <div className="moves-actions" style={{width:'100%', display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom: '4px'}}>
+            <span style={{fontSize:'12px', color:'rgba(241,245,249,.85)'}}>Movimientos disponibles</span>
+            <button className="move-chip" onClick={clearSelection} title="Cancelar selección">✕ Cancelar</button>
+          </div>
+          {Object.keys(groupedMoves).length === 0 ? (
+            <div className="no-moves">No hay movimientos disponibles para esta ficha</div>
+          ) : (
+            Object.entries(groupedMoves)
+              .sort((a, b) => Number(a[0]) - Number(b[0]))
+              .map(([z, moves]) => (
+                <div className="move-group" key={`group-${z}`}>
+                  <span className="move-group-title">Nivel {z}:</span>
+                  <div className="move-chips">
+                    {moves
+                      .sort((a, b) => a.y - b.y || a.x - b.x)
+                      .map((m, i) => {
+                        const isCap = captureSet.has(`${m.x}-${m.y}-${m.z}`)
+                        return (
+                          <button
+                            key={`mv-${z}-${i}`}
+                            className={`move-chip ${isCap ? 'capture' : ''}`}
+                            title={isCap ? `Captura en (${m.x},${m.y},${m.z})` : `Mover a (${m.x},${m.y},${m.z})`}
+                            onClick={() => handleMoveClick(m.x, m.y, m.z)}
+                          >
+                            {getDirectionIcon(m.x, m.y, m.z)} {m.x},{m.y}
+                            {isCap && <span className="cap-dot">●</span>}
+                          </button>
+                        )
+                      })}
+                  </div>
+                </div>
+              ))
+          )}
+        </div>
+      )}
     </div>
   )
 }
