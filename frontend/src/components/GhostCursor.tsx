@@ -26,7 +26,7 @@ export function GhostCursor() {
       // Convertir punto 3D a coordenadas del tablero
       const x = Math.round(point.x / 2)
       const y = Math.round(point.y / 2)
-      const z = Math.max(0, Math.min(7, Math.round(point.z / 2)))
+      const z = Math.max(0, Math.min(2, Math.round(point.z / 2)))
 
       // Verificar si es una casilla válida del tablero
       if (x >= 0 && x < 8 && y >= 0 && y < 8 && z >= 0 && z < 8 && isValidSquare(x, y, z)) {

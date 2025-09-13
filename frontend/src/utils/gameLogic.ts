@@ -1,5 +1,9 @@
 import type { Piece, Position } from '../types/game'
 
+// Board dimensions
+export const BOARD_SIZE = 8
+export const BOARD_HEIGHT = 3
+
 /**
  * Check if a square is valid (dark square in 3D checkers)
  * Valid squares have odd sum of coordinates (x + y + z)
@@ -99,7 +103,7 @@ export function getRegularMoves(piece: Piece, allPieces: Piece[]): Position[] {
     const newZ = z + dz
 
     // Check bounds
-    if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8 || newZ < 0 || newZ >= 8) {
+    if (newX < 0 || newX >= BOARD_SIZE || newY < 0 || newY >= BOARD_SIZE || newZ < 0 || newZ >= BOARD_HEIGHT) {
       continue
     }
 
@@ -148,7 +152,7 @@ export function getCaptureMoves(piece: Piece, allPieces: Piece[]): Position[] {
     const enemyZ = z + dz
 
     // Check if there's an enemy piece adjacent
-    if (enemyX < 0 || enemyX >= 8 || enemyY < 0 || enemyY >= 8 || enemyZ < 0 || enemyZ >= 8) {
+    if (enemyX < 0 || enemyX >= BOARD_SIZE || enemyY < 0 || enemyY >= BOARD_SIZE || enemyZ < 0 || enemyZ >= BOARD_HEIGHT) {
       continue
     }
 
@@ -199,7 +203,7 @@ export function getCaptureLandingPositions(
   }
 
   // Option 2: 3D Innovation - Land on same XY but different level
-  for (let newZ = 0; newZ < 8; newZ++) {
+  for (let newZ = 0; newZ < BOARD_HEIGHT; newZ++) {
     if (newZ === enemyZ) continue // Skip the enemy's level
 
     if (isValidSquare(enemyX, enemyY, newZ)) {
@@ -246,8 +250,8 @@ export function shouldCrown(piece: Piece): boolean {
   if (piece.isKing) return false
 
   if (piece.player === 1) {
-    // Player 1 crowns at y=7 or z=7 (far end of board)
-    return piece.y === 7 || piece.z === 7
+    // Player 1 crowns at y=7 or max z
+    return piece.y === 7 || piece.z === BOARD_HEIGHT - 1
   } else {
     // Player 2 crowns at y=0 or z=0 (opposite end)
     return piece.y === 0 || piece.z === 0

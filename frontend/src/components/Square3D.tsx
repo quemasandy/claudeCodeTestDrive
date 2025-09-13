@@ -40,7 +40,7 @@ export function Square3D({ position, opacity, showVisual = true }: Square3DProps
     <group>
       {/* Hitbox invisible más grande para facilitar selección */}
       <mesh
-        position={[x * 2, y * 2, 0.4]}
+        position={[x * 2, y * 2, z * 2 + 0.4]}
         onClick={handleClick}
         onPointerOver={() => setHovered(true)}
         onPointerOut={() => setHovered(false)}
@@ -51,7 +51,7 @@ export function Square3D({ position, opacity, showVisual = true }: Square3DProps
       </mesh>
 
       {showVisual && (
-        <mesh ref={meshRef} position={[x * 2, y * 2, 0]}>
+        <mesh ref={meshRef} position={[x * 2, y * 2, z * 2]}>
           <boxGeometry args={[1.8, 1.8, 0.2]} />
           {/* Base satinada en nivel 0; niveles superiores semi‑translúcidos */}
           {z === 0 ? (
@@ -77,19 +77,19 @@ export function Square3D({ position, opacity, showVisual = true }: Square3DProps
           )}
 
           {/* Borde luminoso sutil */}
-          <Edges scale={1.001} threshold={12}>
-            <lineBasicMaterial
-              color={getEdgeColor()}
-              transparent
-              opacity={isValidMove || isCapture || hovered ? 0.9 : 0.25}
-            />
-          </Edges>
-        </mesh>
+        <Edges scale={1.001} threshold={12}>
+          <lineBasicMaterial
+            color={getEdgeColor()}
+            transparent
+            opacity={isValidMove || isCapture || hovered ? 0.9 : 0.25}
+          />
+        </Edges>
+      </mesh>
       )}
 
       {/* Borde brillante para casillas de movimiento válido */}
       {showVisual && isValidMove && (
-        <mesh position={[x * 2, y * 2, 0.12]}>
+        <mesh position={[x * 2, y * 2, z * 2 + 0.12]}>
           <torusGeometry args={[1.1, 0.04, 8, 16]} />
           <meshBasicMaterial
             color={isCapture ? '#dc2626' : '#3b82f6'}
@@ -101,7 +101,7 @@ export function Square3D({ position, opacity, showVisual = true }: Square3DProps
 
       {/* Efecto adicional para casillas de captura */}
       {showVisual && isCapture && (
-        <mesh position={[x * 2, y * 2, 0.15]} rotation={[0, 0, Math.PI / 4]}>
+        <mesh position={[x * 2, y * 2, z * 2 + 0.15]} rotation={[0, 0, Math.PI / 4]}>
           <torusGeometry args={[0.8, 0.03, 6, 12]} />
           <meshBasicMaterial
             color='#ef4444'

@@ -5,8 +5,8 @@ import { useGameStore } from '../store/gameStore'
 import { getCaptureMoves } from '../utils/gameLogic'
 
 // Mapeo de colores pastel/azules por nivel (más neón al subir)
-const levelColors = ['#cbd5e1', '#bfe3ff', '#a5d8ff', '#7dd3fc', '#60a5fa', '#38bdf8', '#22d3ee', '#06b6d4']
-const levelOpacity = [0.22, 0.28, 0.34, 0.40, 0.46, 0.52, 0.58, 0.64]
+const levelColors = ['#cbd5e1', '#7dd3fc', '#38bdf8']
+const levelOpacity = [0.28, 0.38, 0.48]
 
 // Altura base sobre cada plano para evitar z-fighting con LevelGlassGrids
 const LAYER_OFFSET = 0.02

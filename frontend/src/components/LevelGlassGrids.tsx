@@ -60,8 +60,8 @@ function LevelPlane({ level }: { level: number }) {
   }), [])
 
   useFrame(() => {
-    // Distance to plane center (board local center is [7,7,level*2] => world approx [0,0,level*2-7])
-    const center = new THREE.Vector3(0, 0, level * 2 - 7)
+    // Board group z offset is -2 (for 3 levels). Plane world center ≈ level*2 - 2
+    const center = new THREE.Vector3(0, 0, level * 2 - 2)
     const dist = camera.position.distanceTo(center)
     const base = 0.12 + level * 0.02
     const op = opacityForDistance(dist, base)
@@ -111,7 +111,7 @@ function LevelPlane({ level }: { level: number }) {
 export function LevelGlassGrids() {
   return (
     <group name="level-glass-grids">
-      {Array.from({ length: 8 }, (_, z) => (
+      {Array.from({ length: 3 }, (_, z) => (
         <LevelPlane key={z} level={z} />
       ))}
     </group>

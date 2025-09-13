@@ -170,7 +170,7 @@ function findCapturedPiece(fromPiece: Piece, to: Position, allPieces: Piece[]): 
 
 export const board = Array.from({ length: 8 }, (_, x) =>
   Array.from({ length: 8 }, (_, y) =>
-    Array.from({ length: 8 }, (_, z) => ({
+    Array.from({ length: 3 }, (_, z) => ({
       x,
       y,
       z,

@@ -8,10 +8,11 @@ import { LevelGlassGrids } from './LevelGlassGrids'
 export function Board3D() {
   const boardRef = useRef<Group>(null)
 
+  // With 3 levels (z=0..2), center along Z is at z=2 local -> group z offset -2 to keep world center at 0
   return (
-    <group ref={boardRef} position={[-7, -7, -7]}>
-      {/* Render all 8 levels with transparency */}
-      {[0, 1, 2, 3, 4, 5, 6, 7].map((level) => (
+    <group ref={boardRef} position={[-7, -7, -2]}>
+      {/* Render only 3 levels (0..2) with hitboxes */}
+      {[0, 1, 2].map((level) => (
         <BoardLevel
           key={level}
           level={level}
