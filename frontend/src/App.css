@@ -261,7 +261,7 @@
   border: 1px solid rgba(100, 116, 139, 0.3);
   overflow: hidden;
   z-index: 10;
-  max-height: 80px;
+  max-height: 118px;
 }
 
 .selector-header {
@@ -316,7 +316,7 @@
   padding: 8px 12px;
   scrollbar-width: thin;
   scrollbar-color: rgba(100, 116, 139, 0.5) transparent;
-  max-height: 42px;
+  max-height: 72px;
   align-items: center;
 }
 
@@ -342,11 +342,12 @@
   position: relative;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-width: 36px;
+  min-width: 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
+  padding: 6px 4px;
 }
 
 .piece-selector-item:hover:not(.disabled) {
