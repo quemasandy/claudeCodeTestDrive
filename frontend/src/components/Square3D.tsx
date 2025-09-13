@@ -35,19 +35,55 @@ export function Square3D({ position, opacity }: Square3DProps) {
   }
 
   return (
-    <mesh
-      ref={meshRef}
-      position={[x * 2, y * 2, 0]}
-      onClick={handleClick}
-      onPointerOver={() => setHovered(true)}
-      onPointerOut={() => setHovered(false)}
-    >
-      <boxGeometry args={[1.8, 1.8, 0.2]} />
-      <meshStandardMaterial
-        color={getSquareColor()}
-        transparent={true}
-        opacity={opacity}
-      />
-    </mesh>
+    <group>
+      {/* Hitbox invisible más grande para facilitar selección */}
+      <mesh
+        position={[x * 2, y * 2, 0.4]}
+        onClick={handleClick}
+        onPointerOver={() => setHovered(true)}
+        onPointerOut={() => setHovered(false)}
+        visible={false}
+      >
+        <boxGeometry args={[2.2, 2.2, 1.0]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
+
+      {/* Casilla visual */}
+      <mesh
+        ref={meshRef}
+        position={[x * 2, y * 2, 0]}
+      >
+        <boxGeometry args={[1.8, 1.8, 0.2]} />
+        <meshStandardMaterial
+          color={getSquareColor()}
+          transparent={true}
+          opacity={opacity}
+        />
+      </mesh>
+
+      {/* Borde brillante para casillas de movimiento válido */}
+      {isValidMove && (
+        <mesh position={[x * 2, y * 2, 0.12]}>
+          <torusGeometry args={[1.1, 0.04, 8, 16]} />
+          <meshBasicMaterial
+            color={isCapture ? '#dc2626' : '#3b82f6'}
+            transparent={true}
+            opacity={0.8}
+          />
+        </mesh>
+      )}
+
+      {/* Efecto adicional para casillas de captura */}
+      {isCapture && (
+        <mesh position={[x * 2, y * 2, 0.15]} rotation={[0, 0, Math.PI / 4]}>
+          <torusGeometry args={[0.8, 0.03, 6, 12]} />
+          <meshBasicMaterial
+            color='#ef4444'
+            transparent={true}
+            opacity={0.6}
+          />
+        </mesh>
+      )}
+    </group>
   )
 }

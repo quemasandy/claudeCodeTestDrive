@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { Group } from 'three'
 import { BoardLevel } from './BoardLevel'
 import { Pieces3D } from './Pieces3D'
+import { GhostCursor } from './GhostCursor'
 
 export function Board3D() {
   const boardRef = useRef<Group>(null)
@@ -19,6 +20,9 @@ export function Board3D() {
 
       {/* Render all pieces */}
       <Pieces3D />
+
+      {/* Cursor fantasma para mejor feedback visual */}
+      <GhostCursor />
     </group>
   )
 }

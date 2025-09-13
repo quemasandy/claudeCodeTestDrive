@@ -60,8 +60,45 @@ export function Checkers3D() {
     <div className="checkers-3d">
       <div className="game-canvas">
         <Canvas camera={{ position: [25, 15, 25], fov: 60 }}>
-          <ambientLight intensity={0.6} />
-          <directionalLight position={[20, 20, 10]} intensity={1} />
+          {/* Iluminación mejorada para materiales realistas */}
+          <ambientLight intensity={0.4} />
+
+          {/* Luz principal direccional */}
+          <directionalLight
+            position={[20, 20, 10]}
+            intensity={1.2}
+            castShadow
+            shadow-mapSize-width={2048}
+            shadow-mapSize-height={2048}
+          />
+
+          {/* Luz de relleno para suavizar sombras */}
+          <directionalLight
+            position={[-10, 15, -10]}
+            intensity={0.6}
+            color="#e0f2fe"
+          />
+
+          {/* Luz puntual superior para crear brillos */}
+          <pointLight
+            position={[0, 15, 0]}
+            intensity={0.8}
+            color="#ffffff"
+          />
+
+          {/* Luces puntuales para crear reflejos en las esferas metálicas */}
+          <pointLight
+            position={[10, 5, 10]}
+            intensity={0.5}
+            color="#60a5fa"
+          />
+
+          <pointLight
+            position={[-10, 5, -10]}
+            intensity={0.5}
+            color="#f87171"
+          />
+
           <Board3D />
           <OrbitControls
             enablePan={true}
