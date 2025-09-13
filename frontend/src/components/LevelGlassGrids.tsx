@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { useMemo } from 'react'
 import { useThree, useFrame } from '@react-three/fiber'
+import { isValidSquare } from '../utils/gameLogic'
 
 // Ethereal frosted-glass grids for each of the 8 levels (XY planes at z = level*2)
 // - Soft celeste tint
@@ -29,6 +30,7 @@ function createGridGeometry(): THREE.BufferGeometry {
 
 const gridGeometry = createGridGeometry()
 const borderPlane = new THREE.PlaneGeometry(14, 14)
+const tilePlane = new THREE.PlaneGeometry(1.8, 1.8)
 
 function opacityForDistance(dist: number, base: number) {
   // Map distance into [0.7..1.0] weight (closer -> 1, farther -> 0.7)
@@ -40,6 +42,11 @@ function LevelPlane({ level }: { level: number }) {
   const { camera } = useThree()
   const lineMat = useMemo(() => new THREE.LineBasicMaterial({ color: '#8ecae6', transparent: true, opacity: 0.35 }), [])
   const borderMat = useMemo(() => new THREE.LineBasicMaterial({ color: '#bde0fe', transparent: true, opacity: 0.55 }), [])
+  const tileMat = useMemo(() => new THREE.MeshBasicMaterial({
+    color: '#cfeffd', // azul hielo sutil
+    transparent: true,
+    opacity: 0.14
+  }), [])
   const fillMat = useMemo(() => new THREE.MeshPhysicalMaterial({
     color: '#dff3ff', // celeste pálido
     transparent: true,
@@ -61,6 +68,7 @@ function LevelPlane({ level }: { level: number }) {
     fillMat.opacity = op
     lineMat.opacity = THREE.MathUtils.clamp(op * 1.8, 0.15, 0.5)
     borderMat.opacity = THREE.MathUtils.clamp(op * 2.2, 0.2, 0.7)
+    tileMat.opacity = THREE.MathUtils.clamp(op * 4.4, 0.8, 1)
   })
 
   return (
@@ -74,6 +82,22 @@ function LevelPlane({ level }: { level: number }) {
       <lineSegments raycast={() => null} geometry={gridGeometry}>
         <primitive object={lineMat} attach="material" />
       </lineSegments>
+
+      {/* Checker tint on odd squares (ice-blue), ultra subtle */}
+      {Array.from({ length: 8 }, (_, x) =>
+        Array.from({ length: 8 }, (_, y) =>
+          isValidSquare(x, y, level) ? (
+            <mesh
+              key={`odd-${x}-${y}-${level}`}
+              raycast={() => null}
+              geometry={tilePlane}
+              position={[x * 2, y * 2, 0.001]}
+            >
+              <primitive object={tileMat} attach="material" />
+            </mesh>
+          ) : null
+        )
+      )}
 
       {/* Outer border slightly brighter */}
       <lineSegments raycast={() => null} position={[7, 7, 0]}>
