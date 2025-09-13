@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { GameState, Piece, Position } from '../types/game'
-import { isValidSquare, getValidMoves, initializePieces } from '../utils/gameLogic'
+import { isValidSquare, getValidMoves, getCaptureMoves, initializePieces, shouldCrown } from '../utils/gameLogic'
 
 interface GameStore extends GameState {
   selectPiece: (pieceId: string) => void
@@ -31,7 +31,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       return
     }
 
-    const validMoves = getValidMoves(piece, state.pieces)
+    const validMoves = getValidMoves(piece, state.pieces, state.mustCapture)
 
     set({
       selectedPiece: piece,
@@ -79,7 +79,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const capturedPiece = findCapturedPiece(selectedPiece, to, state.pieces)
 
     // Move the piece
-    const movedPiece = { ...selectedPiece, x: to.x, y: to.y, z: to.z }
+    let movedPiece = { ...selectedPiece, x: to.x, y: to.y, z: to.z }
+
+    // Check if piece should be crowned
+    if (shouldCrown(movedPiece)) {
+      movedPiece = { ...movedPiece, isKing: true }
+    }
 
     // Update pieces array
     let updatedPieces = state.pieces.map(piece =>
@@ -92,7 +97,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     // Check for additional captures from new position
-    const additionalCaptures = getValidMoves(movedPiece, updatedPieces)
+    const additionalCaptures = getCaptureMoves(movedPiece, updatedPieces)
     const hasMoreCaptures = additionalCaptures.length > 0 && capturedPiece
 
     if (hasMoreCaptures) {
@@ -128,45 +133,33 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
 // Helper function to find captured piece during a move
 function findCapturedPiece(fromPiece: Piece, to: Position, allPieces: Piece[]): Piece | null {
-  const dx = to.x - fromPiece.x
-  const dy = to.y - fromPiece.y
-  const dz = to.z - fromPiece.z
+  // Find which piece is being jumped over by checking all enemy pieces
+  // adjacent to the from position in the direction of the move
 
-  // Check if this is a capture move (distance > 1 in any direction)
-  if (Math.abs(dx) <= 1 && Math.abs(dy) <= 1 && Math.abs(dz) <= 1) {
-    return null // Not a capture move
-  }
-
-  // Check all pieces between from and to positions
   for (const piece of allPieces) {
     if (piece.id === fromPiece.id || piece.player === fromPiece.player) {
       continue
     }
 
-    // Check if piece is in the path and adjacent to from position
-    const toPieceX = piece.x - fromPiece.x
-    const toPieceY = piece.y - fromPiece.y
-    const toPieceZ = piece.z - fromPiece.z
+    // Check if this piece is adjacent to the from position
+    const dx = piece.x - fromPiece.x
+    const dy = piece.y - fromPiece.y
+    const dz = piece.z - fromPiece.z
 
-    // Check if it's adjacent and in the same direction
-    if (Math.abs(toPieceX) === 1 && Math.abs(toPieceY) === 1 && Math.abs(toPieceZ) === 1) {
-      const directionX = Math.sign(dx)
-      const directionY = Math.sign(dy)
-      const directionZ = Math.sign(dz)
+    // Must be adjacent (distance of 1 in valid directions)
+    const changedCoords = [dx, dy, dz].filter(d => Math.abs(d) === 1).length
+    const stationaryCoords = [dx, dy, dz].filter(d => d === 0).length
 
-      if (Math.sign(toPieceX) === directionX &&
-          Math.sign(toPieceY) === directionY &&
-          Math.sign(toPieceZ) === directionZ) {
-        return piece
-      }
-    }
+    if ((changedCoords === 2 && stationaryCoords === 1) || (changedCoords === 3 && stationaryCoords === 0)) {
+      // Check if the destination is in the same direction from the enemy piece
+      const toDx = to.x - piece.x
+      const toDy = to.y - piece.y
+      const toDz = to.z - piece.z
 
-    // Check if piece is at the same XY as destination (3D innovation)
-    if (piece.x === to.x && piece.y === to.y && piece.z !== to.z) {
-      // Check if this piece is adjacent to the from position
-      if (Math.abs(piece.x - fromPiece.x) === 1 &&
-          Math.abs(piece.y - fromPiece.y) === 1 &&
-          Math.abs(piece.z - fromPiece.z) === 1) {
+      // The destination should be in the same direction from the enemy piece
+      // Either the traditional jump (same direction) or the 3D innovation (different level)
+      if ((Math.sign(dx) === Math.sign(toDx) && Math.sign(dy) === Math.sign(toDy) && Math.sign(dz) === Math.sign(toDz)) ||
+          (to.x === piece.x && to.y === piece.y && to.z !== piece.z)) {
         return piece
       }
     }

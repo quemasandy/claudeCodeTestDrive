@@ -27,11 +27,11 @@ export function Square3D({ position, opacity }: Square3DProps) {
   }
 
   const getSquareColor = () => {
-    if (isSelected) return '#4ade80' // green
-    if (isCapture) return '#ef4444' // red for captures
-    if (isValidMove) return '#fbbf24' // yellow for regular moves
-    if (hovered) return '#64748b' // gray
-    return '#1e293b' // dark
+    if (isSelected) return '#4ade80' // green for selected square
+    if (isCapture) return '#dc2626' // dark red for captures
+    if (isValidMove) return '#3b82f6' // blue for regular moves
+    if (hovered) return '#64748b' // gray for hover
+    return '#1e293b' // dark for normal squares
   }
 
   return (

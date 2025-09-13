@@ -39,6 +39,8 @@ export function GameUI() {
                   <small>Debug: Pieza en ({selectedPiece.x}, {selectedPiece.y}, {selectedPiece.z}) - Jugador {selectedPiece.player}</small>
                   <br />
                   <small>Casilla válida: {(selectedPiece.x + selectedPiece.y + selectedPiece.z) % 2 === 1 ? 'Sí' : 'No'}</small>
+                  <br />
+                  <small>🔵 Azul = Movimiento normal | 🔴 Rojo = Captura disponible</small>
                   {validMoves.length === 0 && (
                     <div style={{color: '#fbbf24', marginTop: '0.5rem'}}>
                       <small>⚠️ No hay movimientos válidos. Intenta con otra pieza.</small>
@@ -52,7 +54,7 @@ export function GameUI() {
             <div className="capture-status">
               <p><strong>¡Captura obligatoria!</strong></p>
               <p>Opciones de captura: {captureCount}</p>
-              <p className="capture-help">🔴 Rojo = Captura | 🟡 Amarillo = Movimiento</p>
+              <p className="capture-help">🔴 Rojo = Captura | 🔵 Azul = Movimiento</p>
             </div>
           )}
           {gameState === 'player1_wins' && <p>¡Jugador Rojo gana!</p>}

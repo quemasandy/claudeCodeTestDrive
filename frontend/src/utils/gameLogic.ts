@@ -58,17 +58,18 @@ export function initializePieces(): Piece[] {
 /**
  * Get all valid moves for a piece
  */
-export function getValidMoves(piece: Piece, allPieces: Piece[]): Position[] {
-  const moves: Position[] = []
+export function getValidMoves(piece: Piece, allPieces: Piece[], mustCapture: boolean = false): Position[] {
   const captures = getCaptureMoves(piece, allPieces)
+  const regularMoves = getRegularMoves(piece, allPieces)
 
-  // If captures are available, only return captures (mandatory)
-  if (captures.length > 0) {
+  // If we're in a forced capture sequence, only return captures
+  if (mustCapture) {
     return captures
   }
 
-  // Otherwise, return regular moves
-  return getRegularMoves(piece, allPieces)
+  // In normal play, captures are optional unless it's a forced sequence
+  // Return both captures and regular moves, let the player choose
+  return [...captures, ...regularMoves]
 }
 
 /**
@@ -126,8 +127,16 @@ export function getCaptureMoves(piece: Piece, allPieces: Piece[]): Position[] {
   const moves: Position[] = []
   const { x, y, z, player } = piece
 
-  // Define diagonal directions in 3D
+  // Define all possible directions where exactly 2 coordinates change by ±1
+  // Same directions as regular moves for consistency
   const directions = [
+    // X and Y change, Z stays same (same level moves)
+    [1, 1, 0], [1, -1, 0], [-1, 1, 0], [-1, -1, 0],
+    // X and Z change, Y stays same
+    [1, 0, 1], [1, 0, -1], [-1, 0, 1], [-1, 0, -1],
+    // Y and Z change, X stays same
+    [0, 1, 1], [0, 1, -1], [0, -1, 1], [0, -1, -1],
+    // Also include 3D diagonal moves
     [1, 1, 1], [1, 1, -1], [1, -1, 1], [1, -1, -1],
     [-1, 1, 1], [-1, 1, -1], [-1, -1, 1], [-1, -1, -1]
   ]
