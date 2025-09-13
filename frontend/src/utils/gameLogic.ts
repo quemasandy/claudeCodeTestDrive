@@ -14,9 +14,10 @@ export function isValidSquare(x: number, y: number, z: number): boolean {
 export function initializePieces(): Piece[] {
   const pieces: Piece[] = []
 
-  // Player 1 (Red) - starts at bottom levels (z=0,1,2)
-  // Level 0: Fill first 3 rows
-  for (let z = 0; z < 3; z++) {
+  // Ambas salidas "tocando el suelo": z = 0
+  // Jugador 1 (Rojo): primeras 3 filas (y=0..2)
+  {
+    const z = 0
     for (let y = 0; y < 3; y++) {
       for (let x = 0; x < 8; x++) {
         if (isValidSquare(x, y, z)) {
@@ -33,9 +34,9 @@ export function initializePieces(): Piece[] {
     }
   }
 
-  // Player 2 (Black) - starts at top levels (z=5,6,7)
-  // Level 5,6,7: Fill last 3 rows
-  for (let z = 5; z < 8; z++) {
+  // Jugador 2 (Negro): últimas 3 filas (y=5..7)
+  {
+    const z = 0
     for (let y = 5; y < 8; y++) {
       for (let x = 0; x < 8; x++) {
         if (isValidSquare(x, y, z)) {

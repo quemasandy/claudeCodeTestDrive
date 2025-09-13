@@ -1,67 +1,76 @@
-import { Canvas, useThree } from '@react-three/fiber'
+import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
+import * as THREE from 'three'
 import { Board3D } from './Board3D'
 import { GameUI } from './GameUI'
 import { RotationControls } from './RotationControls'
 import { DynamicPieceSelector } from './DynamicPieceSelector'
 import { useGameStore } from '../store/gameStore'
-import { useRef, useCallback, useEffect, forwardRef, useImperativeHandle } from 'react'
-
-interface CameraControllerRef {
-  rotate: (direction: 'left' | 'right' | 'up' | 'down') => void
-}
-
-const CameraController = forwardRef<CameraControllerRef>((props, ref) => {
-  const { camera } = useThree()
-  const targetRotation = useRef<{ x: number; y: number }>({ x: Math.PI / 6, y: Math.PI / 4 })
-
-  const rotateCamera = useCallback((direction: 'left' | 'right' | 'up' | 'down') => {
-    const step = Math.PI / 8 // 22.5 degrees per step
-
-    switch (direction) {
-      case 'left':
-        targetRotation.current.y += step
-        break
-      case 'right':
-        targetRotation.current.y -= step
-        break
-      case 'up':
-        targetRotation.current.x = Math.max(-Math.PI / 2 + 0.1, targetRotation.current.x - step)
-        break
-      case 'down':
-        targetRotation.current.x = Math.min(Math.PI / 2 - 0.1, targetRotation.current.x + step)
-        break
-    }
-
-    // Apply rotation
-    const distance = 30
-    const x = distance * Math.cos(targetRotation.current.x) * Math.cos(targetRotation.current.y)
-    const y = distance * Math.sin(targetRotation.current.x)
-    const z = distance * Math.cos(targetRotation.current.x) * Math.sin(targetRotation.current.y)
-
-    camera.position.set(x, y, z)
-    camera.lookAt(-7, -7, -7)
-  }, [camera])
-
-  useImperativeHandle(ref, () => ({
-    rotate: rotateCamera
-  }), [rotateCamera])
-
-  return null
-})
+import { useRef, useCallback, useEffect } from 'react'
+// Controlaremos la cámara usando OrbitControls de forma imperativa para permitir vueltas completas
 
 export function Checkers3D() {
-  const cameraControllerRef = useRef<CameraControllerRef>(null)
+  const controlsRef = useRef<any>(null)
 
   const handleRotation = useCallback((direction: 'left' | 'right' | 'up' | 'down') => {
-    cameraControllerRef.current?.rotate(direction)
+    const step = Math.PI / 8
+    const controls = controlsRef.current
+    if (!controls) return
+    if (direction === 'left') controls.rotateLeft(step)
+    if (direction === 'right') controls.rotateLeft(-step)
+    if (direction === 'up') controls.rotateUp(step)
+    if (direction === 'down') controls.rotateUp(-step)
+    controls.update()
   }, [])
+
+  const handleHorizontalRotation = useCallback((direction: 'clockwise' | 'counterclockwise') => {
+    const step = Math.PI / 8
+    const controls = controlsRef.current
+    if (!controls) return
+    if (direction === 'clockwise') controls.rotateLeft(-step)
+    else controls.rotateLeft(step)
+    controls.update()
+  }, [])
+
+  // Roll (rotar alrededor del eje de visión) para control en 3D completo
+  const handleRoll = useCallback((direction: 'left' | 'right') => {
+    const angle = Math.PI / 18 // 10° por clic
+    const controls = controlsRef.current
+    if (!controls) return
+    const cam = controls.object as THREE.PerspectiveCamera
+    const dir = new THREE.Vector3()
+    cam.getWorldDirection(dir)
+    cam.up.applyAxisAngle(dir, direction === 'left' ? angle : -angle).normalize()
+    controls.update()
+  }, [])
+
+  // Reset a vista de espectador con rojas a la izquierda (según orientación inicial)
+  const handleResetView = useCallback(() => {
+    const controls = controlsRef.current
+    if (!controls) return
+    // Cámara mirando desde +X hacia el centro, con Z como "arriba"
+    controls.object.position.set(20, 0, 14)
+    controls.target.set(0, 0, 0)
+    controls.object.up.set(0, 0, 1)
+    controls.update()
+  }, [])
+
+  // Inicializar cámara como espectador al montar
+  useEffect(() => {
+    handleResetView()
+  }, [handleResetView])
 
   return (
     <div className="checkers-3d">
       <div className="game-canvas">
         <div className="canvas-container">
-          <Canvas camera={{ position: [8, 8, 8], fov: 75 }}>
+          <Canvas
+            camera={{ position: [20, 0, 14], fov: 70 }}
+            onCreated={({ camera }) => {
+              // Usar Z como eje "arriba" para que el tablero se perciba con el suelo en Z=0
+              camera.up.set(0, 0, 1)
+            }}
+          >
             {/* Iluminación mejorada para materiales realistas */}
             <ambientLight intensity={0.4} />
 
@@ -103,16 +112,25 @@ export function Checkers3D() {
 
             <Board3D />
             <OrbitControls
+              ref={controlsRef}
               enablePan={true}
               enableZoom={true}
               enableRotate={true}
+              enableDamping={true}
+              dampingFactor={0.08}
               minDistance={10}
               maxDistance={40}
-              target={[-7, -7, -7]}
+              minPolarAngle={0.01}
+              maxPolarAngle={Math.PI - 0.01}
+              target={[0, 0, 0]}
             />
-            <CameraController ref={cameraControllerRef} />
           </Canvas>
-          <RotationControls onRotate={handleRotation} />
+          <RotationControls
+            onRotate={handleRotation}
+            onHorizontalRotate={handleHorizontalRotation}
+            onRoll={handleRoll}
+            onReset={handleResetView}
+          />
 
           {/* Selector dinámico de fichas posicionado absolutamente en el bottom */}
           <DynamicPieceSelector />

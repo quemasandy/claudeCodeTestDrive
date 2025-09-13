@@ -42,6 +42,30 @@
   align-items: center;
 }
 
+/* Contenedor para los botones de giro horario/antihorario */
+.rotation-horizontal-spin {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.rotation-btn.rotation-clockwise,
+.rotation-btn.rotation-counterclockwise {
+  font-size: 22px;
+}
+
+/* Extras: roll + reset */
+.rotation-extras {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.rotation-btn.rotation-roll-left,
+.rotation-btn.rotation-roll-right,
+.rotation-btn.rotation-reset {
+  font-size: 18px;
+}
+
 .rotation-btn {
   width: 50px;
   height: 50px;

@@ -16,17 +16,13 @@ export function Piece3D({ piece }: Piece3DProps) {
 
   const isSelected = selectedPiece?.id === piece.id
 
-  // Animación de flotación sutil + efectos dinámicos
+  // Posicionamiento estable sobre la casilla (sin flotar) y efectos leves
   useFrame((state) => {
     if (meshRef.current) {
-      const baseY = piece.y * 2 + 0.8
-      const floatOffset = Math.sin(state.clock.getElapsedTime() + piece.x + piece.z) * 0.05
-
-      // Elevar más cuando está en hover o seleccionado
-      const hoverOffset = hovered ? 0.2 : 0
-      const selectedOffset = isSelected ? 0.3 : 0
-
-      meshRef.current.position.y = baseY + floatOffset + hoverOffset + selectedOffset
+      const baseZ = piece.z * 2 + 0.7 // tocar "suelo" del nivel (top del cuadrado es ~0.1)
+      const hoverOffset = hovered ? 0.05 : 0
+      const selectedOffset = isSelected ? 0.12 : 0
+      meshRef.current.position.z = baseZ + hoverOffset + selectedOffset
     }
 
     // Rotación del aura de corona (más rápida cuando seleccionada)
@@ -77,7 +73,7 @@ export function Piece3D({ piece }: Piece3DProps) {
   return (
     <group>
       {/* Sombra sutil en la casilla */}
-      <mesh position={[piece.x * 2, piece.y * 2, 0.11]} rotation={[-Math.PI / 2, 0, 0]}>
+      <mesh position={[piece.x * 2, piece.y * 2, piece.z * 2 + 0.11]} rotation={[-Math.PI / 2, 0, 0]}>
         <circleGeometry args={[0.6, 16]} />
         <meshBasicMaterial
           color="#000000"
@@ -101,7 +97,7 @@ export function Piece3D({ piece }: Piece3DProps) {
       {/* Esfera principal flotante (solo visual) */}
       <mesh
         ref={meshRef}
-        position={[piece.x * 2, piece.y * 2, 0.8]}
+        position={[piece.x * 2, piece.y * 2, piece.z * 2 + 0.7]}
         scale={isSelected ? 1.2 : hovered ? 1.15 : 1}
         userData={{ transition: true }}
       >
@@ -111,7 +107,7 @@ export function Piece3D({ piece }: Piece3DProps) {
 
       {/* Efecto de selección - anillo pulsante */}
       {isSelected && (
-        <mesh position={[piece.x * 2, piece.y * 2, 0.05]}>
+        <mesh position={[piece.x * 2, piece.y * 2, piece.z * 2 + 0.05]}>
           <torusGeometry args={[1.0, 0.05, 8, 16]} />
           <meshBasicMaterial
             color={piece.player === 1 ? "#ef4444" : "#64748b"}
@@ -123,7 +119,7 @@ export function Piece3D({ piece }: Piece3DProps) {
 
       {/* Efecto de corona para damas */}
       {piece.isKing && (
-        <group position={[piece.x * 2, piece.y * 2, 0.8]}>
+        <group position={[piece.x * 2, piece.y * 2, piece.z * 2 + 0.7]}>
           {/* Aura exterior */}
           <mesh ref={crownRef}>
             <torusGeometry args={[1.2, 0.08, 8, 16]} />
